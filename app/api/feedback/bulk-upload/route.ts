@@ -61,7 +61,7 @@ const row = records[i] as any;
         const existingFeedback = await db.feedback.findFirst({
           where: {
             workspaceId: workspaceId || "default-workspace",
-            content: row.content,
+            text: row.text,
           },
         });
 
