@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import prisma, { db } from "@/lib/db";
 import { parse } from "csv-parse/sync";
 
 export async function POST(request: Request) {
@@ -57,13 +57,12 @@ const row = records[i] as any;
           throw new Error(`Row ${i + 1}: Content is empty`);
         }
 
-        // 3. Duplicate Detection / Merging (Check if same content already exists in workspace)
-        const existingFeedback = await db.feedback.findFirst({
-          where: {
-            workspaceId: workspaceId || "default-workspace",
-            text: row.content,
-          },
-        });
+        const existingFeedback = await prisma.feedback.findFirst({
+  where: {
+    workspaceId: workspaceId || "default-workspace",
+    text: row.content,
+  },
+});
 
         if (existingFeedback) {
           // Duplicate found: Skip insertion or merge count
