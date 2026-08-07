@@ -108,8 +108,7 @@ export async function POST(request: Request) {
       select: { themes: true },
     });
     
-    const existingThemes = Array.from(
-const existingThemes = Array.from(
+   const existingThemes = Array.from(
   new Set((existingFeedback as any[]).flatMap((f: any) => f.themes || []))
 );
     const aiClassification = await classifyFeedback(content, existingThemes);
