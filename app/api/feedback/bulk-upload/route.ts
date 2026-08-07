@@ -71,15 +71,14 @@ const row = records[i] as any;
           continue;
         }
 
-        await db.feedback.create({
-          data: {
-            title: row.title || "Bulk Upload Feedback",
-            content: row.content,
-            sentiment: row.sentiment || "NEUTRAL",
-            featureArea: row.featureArea || "General",
-            workspaceId: workspaceId || "default-workspace",
-          },
-        });
+       await db.feedback.create({
+  data: {
+    workspaceId: workspaceId || "default-workspace",
+    text: row.content, // content ki jagah text
+    sentiment: row.sentiment || "NEUTRAL",
+    featureArea: row.featureArea || "General",
+  },
+});
         successCount++;
       } catch (err: any) {
         failureCount++;
