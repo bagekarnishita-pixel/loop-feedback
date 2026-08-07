@@ -18,13 +18,12 @@ export async function GET(request: Request) {
       );
     }
 
-    // 1. Fetch feedback items for the specific workspace (Tenant Isolation)
-    const feedbacks = await prisma.feedback.findMany({
-      where: { workspaceId },
-      select: { content: true, sentiment: true, createdAt: true, featureArea: true },
-      take: 100, // Analyze up to recent 100 items
-    });
-
+   // 1. Fetch feedback items for the specific workspace (Tenant Isolation)
+const feedbacks = await prisma.feedback.findMany({
+  where: { workspaceId },
+  select: { text: true, sentiment: true, createdAt: true },
+  take: 100, // Analyze up to recent 100 items
+});
     if (feedbacks.length === 0) {
       return NextResponse.json({ success: true, themes: [], message: "No feedback found to cluster." });
     }
