@@ -109,8 +109,9 @@ export async function POST(request: Request) {
     });
     
     const existingThemes = Array.from(
-new Set(existingFeedback.flatMap((f: any) => f.themes || []))    );
-
+const existingThemes = Array.from(
+  new Set((existingFeedback as any[]).flatMap((f: any) => f.themes || []))
+);
     const aiClassification = await classifyFeedback(content, existingThemes);
 
     const newFeedback = await prisma.feedback.create({
