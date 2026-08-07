@@ -109,8 +109,7 @@ export async function POST(request: Request) {
     });
     
     const existingThemes = Array.from(
-      new Set(existingFeedback.flatMap((f) => f.themes))
-    );
+new Set(existingFeedback.flatMap((f: any) => f.themes || []))    );
 
     const aiClassification = await classifyFeedback(content, existingThemes);
 
