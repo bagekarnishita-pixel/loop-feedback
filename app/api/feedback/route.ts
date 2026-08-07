@@ -41,8 +41,7 @@ export async function GET(request: Request) {
 const negativeCount = feedbackItems.filter((f: any) => f.sentiment === 'NEGATIVE').length;
 const neutralCount = feedbackItems.filter((f: any) => f.sentiment === 'NEUTRAL').length;
     const averageSentimentScore = totalCount > 0
-? feedbackItems.reduce((acc, f) => acc + (f.sentimentScore ?? 0), 0) / totalCount      : 0;
-
+? feedbackItems.reduce((acc: any, f: any) => acc + (f.sentimentScore || 0), 0) / totalCount
     return NextResponse.json(
       {
         success: true,
