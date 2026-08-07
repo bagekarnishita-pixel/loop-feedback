@@ -88,8 +88,7 @@ export default function AnalyticsCharts() {
     }));
 
     if (formattedThemes.length > 0) {
-      setThemeData(formattedThemes);
-    }
+setThemeData(formattedThemes as any);    }
   };
 
   useEffect(() => {
