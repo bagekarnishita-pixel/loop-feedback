@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
     // 2. Column Validation (Check if required headers exist)
     if (records.length > 0) {
-      const firstRow = records[0];
+      const firstRow = records[0] as any;
       if (!firstRow.content) {
         return NextResponse.json({ 
           success: false, 
