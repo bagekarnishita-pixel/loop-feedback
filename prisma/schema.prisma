@@ -1,0 +1,70 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Workspace {
+  id        String     @id @default(uuid())
+  name      String
+  createdAt DateTime   @default(now())
+  users     User[]
+  feedbacks Feedback[]
+  themes    Theme[]
+  reports   Report[]
+}
+
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  name        String?
+  role        Role      @default(ANALYST)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Feedback {
+  id          String          @id @default(uuid())
+  text        String
+  channel     String
+  sentiment   String
+  status      String          @default("NEW")
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  themes      FeedbackTheme[]
+  createdAt   DateTime        @default(now())
+}
+
+model Theme {
+  id          String          @id @default(uuid())
+  name        String
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  feedbacks   FeedbackTheme[]
+}
+
+model FeedbackTheme {
+  feedbackId String
+  themeId    String
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  theme      Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@id([feedbackId, themeId])
+}
+
+model Report {
+  id          String    @id @default(uuid())
+  title       String
+  content     String
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+}
