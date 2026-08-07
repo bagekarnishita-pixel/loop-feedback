@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Prepare text payload for Groq
-    const feedbackTexts = feedbacks.map((f, i) => `[${i+1}] (${f.sentiment}) ${f.content}`).join("\n");
+    const feedbackTexts = feedbacks.map((f: any, i: number) => `[${i+1}] (${f.sentiment}) ${f.content}`).join("\n");
 
     const prompt = `Analyze the following customer feedback items and group them into 3 to 5 distinct, meaningful named themes (e.g., "Onboarding complaints", "UI/UX enhancements", "Billing issues"). 
     For each theme, provide:
