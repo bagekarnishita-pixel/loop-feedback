@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     const errors: any[] = [];
 
     for (let i = 0; i < records.length; i++) {
-      const row = records[i];
+const row = records[i] as any;
       try {
         if (!row.content || row.content.trim() === "") {
           throw new Error(`Row ${i + 1}: Content is empty`);
