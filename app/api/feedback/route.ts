@@ -37,10 +37,9 @@ export async function GET(request: Request) {
     });
 
     const totalCount = feedbackItems.length;
-    const positiveCount = feedbackItems.filter((f) => f.sentiment === 'POSITIVE').length;
-    const negativeCount = feedbackItems.filter((f) => f.sentiment === 'NEGATIVE').length;
-    const neutralCount = feedbackItems.filter((f) => f.sentiment === 'NEUTRAL').length;
-
+   const positiveCount = feedbackItems.filter((f: any) => f.sentiment === 'POSITIVE').length;
+const negativeCount = feedbackItems.filter((f: any) => f.sentiment === 'NEGATIVE').length;
+const neutralCount = feedbackItems.filter((f: any) => f.sentiment === 'NEUTRAL').length;
     const averageSentimentScore = totalCount > 0
 ? feedbackItems.reduce((acc, f) => acc + (f.sentimentScore ?? 0), 0) / totalCount      : 0;
 
