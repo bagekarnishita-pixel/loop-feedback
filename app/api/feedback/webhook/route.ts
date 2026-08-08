@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, content, sentiment, featureArea, workspaceId, source } = body;
+    const { content, sentiment, featureArea, workspaceId, source } = body;
 
     if (!content) {
       return NextResponse.json({ success: false, error: "Content is required" }, { status: 400 });
@@ -12,11 +12,11 @@ export async function POST(request: Request) {
 
     const newFeedback = await db.feedback.create({
       data: {
-        title: title || `Webhook Feedback from ${source || 'External API'}`,
-        content,
+        text: content, // 'content' ko 'text' mein map kar diya gaya hai
         sentiment: sentiment || "NEUTRAL",
         featureArea: featureArea || "General",
         workspaceId: workspaceId || "default-workspace",
+        // 'title' ko yahan se puri tarah hata diya gaya hai kyunki wo schema mein nahi hai
       },
     });
 
