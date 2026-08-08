@@ -71,12 +71,11 @@ const row = records[i] as any;
           continue;
         }
 
-       await db.feedback.create({
+   await db.feedback.create({
   data: {
     workspaceId: workspaceId || "default-workspace",
-    text: row.content, // content ki jagah text
+    text: row.content,
     sentiment: row.sentiment || "NEUTRAL",
-    featureArea: row.featureArea || "General",
   },
 });
         successCount++;
