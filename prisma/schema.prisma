@@ -34,9 +34,10 @@ model User {
 model Feedback {
   id          String          @id @default(uuid())
   text        String
-  channel     String
+  channel     String          @default("CSV")
   sentiment   String
   status      String          @default("NEW")
+  featureArea String          @default("General")
   workspaceId String
   workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   themes      FeedbackTheme[]
