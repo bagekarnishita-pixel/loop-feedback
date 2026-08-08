@@ -8,8 +8,7 @@ const createFeedbackSchema = z.object({
   content: z.string().min(1, "Content is required"),
   workspaceId: z.string().min(1, "Workspace ID is required"),
   channel: z.string().optional(),
-  customerLabel: z.string().optional(),
-  userId: z.string().min(1, "User ID is required for RBAC check"), // RBAC ke liye userId zaroori hai
+  userId: z.string().min(1, "User ID is required for RBAC check"),
 });
 
 export async function GET(request: Request) {
@@ -37,12 +36,10 @@ export async function GET(request: Request) {
     });
 
     const totalCount = feedbackItems.length;
-   const positiveCount = feedbackItems.filter((f: any) => f.sentiment === 'POSITIVE').length;
-const negativeCount = feedbackItems.filter((f: any) => f.sentiment === 'NEGATIVE').length;
-const neutralCount = feedbackItems.filter((f: any) => f.sentiment === 'NEUTRAL').length;
-  const averageSentimentScore = totalCount > 0 
-  ? feedbackItems.reduce((acc: any, f: any) => acc + (f.sentimentScore || 0), 0) / totalCount 
-  : 0;
+    const positiveCount = feedbackItems.filter((f: any) => f.sentiment === 'POSITIVE').length;
+    const negativeCount = feedbackItems.filter((f: any) => f.sentiment === 'NEGATIVE').length;
+    const neutralCount = feedbackItems.filter((f: any) => f.sentiment === 'NEUTRAL').length;
+
     return NextResponse.json(
       {
         success: true,
@@ -51,7 +48,6 @@ const neutralCount = feedbackItems.filter((f: any) => f.sentiment === 'NEUTRAL')
           positiveCount,
           negativeCount,
           neutralCount,
-          averageSentimentScore: Number(averageSentimentScore.toFixed(2)),
         },
         data: feedbackItems,
       },
@@ -80,10 +76,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { content, channel, workspaceId, customerLabel, userId } = validationResult.data;
+    const { content, channel, workspaceId, userId } = validationResult.data;
 
     // --- RBAC BACKEND CHECK (Feature 2) ---
-    // Check karein ki user database mein exist karta hai ya nahi aur uska role VIEWER toh nahi hai
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { role: true, workspaceId: true },
@@ -91,9 +86,8 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized: User not found.' }, { status: 401 });
-    }
+      }
 
-    // Agar user VIEWER hai, toh data modify/create karne ki ijazat nahi hai (403 Forbidden)
     if (user.role === 'VIEWER') {
       return NextResponse.json(
         { error: 'Forbidden: Viewers do not have permission to create or modify feedback.' },
@@ -102,29 +96,25 @@ export async function POST(request: Request) {
     }
     // ---------------------------------------
 
-    // Tenant Isolation when fetching existing themes
     const existingFeedback = await prisma.feedback.findMany({
       where: { workspaceId },
-      select: { themes: true },
+      include: { themes: { include: { theme: true } } },
     });
     
-   const existingThemes = Array.from(
-  new Set((existingFeedback as any[]).flatMap((f: any) => f.themes || []))
-);
+    const existingThemes = Array.from(
+      new Set((existingFeedback as any[]).flatMap((f: any) => f.themes?.map((t: any) => t.theme?.name) || []))
+    );
+    
     const aiClassification = await classifyFeedback(content, existingThemes);
 
     const newFeedback = await prisma.feedback.create({
       data: {
-        content,
-        channel: channel || 'WEB_FORM',
-        workspaceId, // Tenant Isolation enforced here too
-        customerLabel: customerLabel || 'Anonymous',
+        text: content, // 'content' ko schema ke hisaab se 'text' mein map kiya gaya hai
+        channel: channel || 'CSV',
+        workspaceId,
         status: 'NEW',
-        sentiment: aiClassification.sentiment,
-        sentimentScore: aiClassification.sentimentScore,
-        themes: aiClassification.themes,
-        featureArea: aiClassification.featureArea,
-        aiRationale: aiClassification.rationale,
+        sentiment: aiClassification.sentiment || 'NEUTRAL',
+        featureArea: aiClassification.featureArea || 'General',
       },
     });
 
